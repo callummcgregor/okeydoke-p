@@ -22,14 +22,13 @@ def name_of_test():
 	"""
 	Now redundant as temp must be assigned within the current function
 	"""
-	temp = globals()[inspect.getframeinfo(inspect.currentframe()).function]
-	return temp.__name__
+	pass
 
 
 def test_can_get_test_name():
 	"""
 	See http://docs.python.org/3.3/library/inspect.html
 	  and http://stackoverflow.com/questions/5063607/is-there-a-self-flag-can-reference-python-function-inside-itself
+	  and http://stackoverflow.com/questions/17726954/py-test-how-to-get-the-current-tests-name-from-the-setup-method
 	"""
-	temp = globals()[inspect.getframeinfo(inspect.currentframe()).function]
-	assert temp.__name__ == 'test_can_get_test_name'
+	assert inspect.getframeinfo(inspect.currentframe()).function == 'test_can_get_test_name'
