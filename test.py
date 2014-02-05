@@ -32,6 +32,9 @@ def approved(thing, test_name_or_None=None):
     try:
         assert thing == _read_approved(test_name)
         return True
+    except AssertionError:
+        _write_actual(thing, test_name)
+        raise
     except FileNotFoundError:
         _write_actual(thing, test_name)
         raise AssertionError('No approved found')
@@ -45,16 +48,19 @@ def approve(thing, test_name_or_None=None):
 def test_actual_is_as_approved():
     assert os.path.exists('test_actual_is_as_approved.approved')
     assert approved('banana')
+    assert not os.path.exists('test_actual_is_as_approved.actual')
 
 
 def test_actual_is_not_as_approved():
     assert os.path.exists('test_actual_is_not_as_approved.approved')
+    remove_if_exists('test_actual_is_not_as_approved.actual')
     try:
         assert approved('kumquat')
     except AssertionError as x:
         assert 'banana' and 'kumquat' in str(x)
     else:
         assert False, 'Should have thrown'
+    assert os.path.exists('test_actual_is_not_as_approved.actual')
 
 
 def test_no_approved():
