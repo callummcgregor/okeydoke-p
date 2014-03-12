@@ -1,9 +1,8 @@
 import os
+import traceback
+
 
 __author__ = 'callum'
-
-
-import traceback
 
 
 def _read_approved(test_name):
@@ -28,19 +27,30 @@ def remove_if_exists(path):
 		pass
 
 
-def approved(thing, test_name_or_None=None):
-	test_name = test_name_or_None if test_name_or_None else traceback.extract_stack(None, 2)[0][2]
+def _function_name_at_depth(stack_depth):
+	stack_depth_in_this_function = stack_depth + 1
+	limit = stack_depth_in_this_function + 1
+	_, _, function_name, _ = traceback.extract_stack(None, limit)[0]
+	return function_name
+
+
+def _my_callers_name():
+	return _function_name_at_depth(2)
+
+
+def approved(thing, test_name=None):
+	resolved_test_name = test_name if test_name else _my_callers_name()
 	try:
-		assert thing == _read_approved(test_name)
+		assert thing == _read_approved(resolved_test_name)
 		return True
 	except FileNotFoundError:
-		_write_actual(thing, test_name)
+		_write_actual(thing, resolved_test_name)
 		raise AssertionError('No approved found')
 
 
-def approve(thing, test_name_or_None=None):
-	test_name = test_name_or_None if test_name_or_None else traceback.extract_stack(None, 2)[0][2]
-	_write_approved(thing, test_name)
+def approve(thing, test_name=None):
+	resolved_test_name = test_name if test_name else _my_callers_name()
+	_write_approved(thing, resolved_test_name)
 
 
 def test_actual_is_as_approved():
